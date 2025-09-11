@@ -1,0 +1,142 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Employee {
+    int id;
+    char name[50];
+    float salary;
+};
+
+void addEmployee() {
+    struct Employee emp;
+    FILE *fp;
+
+    fp = fopen("employee.txt", "a");
+    if (fp == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    printf("Enter Employee ID: ");
+    scanf("%d", &emp.id);
+    printf("Enter Employee Name: ");
+    scanf(" %[^\n]", emp.name);  // Read string with spaces
+    printf("Enter Employee Salary: ");
+    scanf("%f", &emp.salary);
+
+    fprintf(fp, "%d %s %.2f\n", emp.id, emp.name, emp.salary);
+
+    fclose(fp);
+    printf("Employee added successfully!\n");
+}
+
+void displayEmployees() {
+    struct Employee emp;
+    FILE *fp;
+
+    fp = fopen("employee.txt", "r");
+    if (fp == NULL) {
+        printf("No records found.\n");
+        return;
+    }
+
+    printf("\n--- Employee Records ---\n");
+    while (fscanf(fp, "%d %s %f", &emp.id, emp.name, &emp.salary) != EOF) {
+        printf("ID: %d | Name: %s | Salary: %.2f\n", emp.id, emp.name, emp.salary);
+    }
+
+    fclose(fp);
+}
+
+void searchEmployee() {
+    struct Employee emp;
+    FILE *fp;
+    int id, found = 0;
+
+    printf("Enter Employee ID to search: ");
+    scanf("%d", &id);
+
+    fp = fopen("employee.txt", "r");
+    if (fp == NULL) {
+        printf("No records found.\n");
+        return;
+    }
+
+    while (fscanf(fp, "%d %s %f", &emp.id, emp.name, &emp.salary) != EOF) {
+        if (emp.id == id) {
+            printf("Record Found!\n");
+            printf("ID: %d | Name: %s | Salary: %.2f\n", emp.id, emp.name, emp.salary);
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Employee with ID %d not found.\n", id);
+    }
+
+    fclose(fp);
+}
+
+void deleteEmployee() {
+    struct Employee emp;
+    FILE *fp, *temp;
+    int id, found = 0;
+
+    printf("Enter Employee ID to delete: ");
+    scanf("%d", &id);
+
+    fp = fopen("employee.txt", "r");
+    temp = fopen("temp.txt", "w");
+
+    if (fp == NULL || temp == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    while (fscanf(fp, "%d %s %f", &emp.id, emp.name, &emp.salary) != EOF) {
+        if (emp.id != id) {
+            fprintf(temp, "%d %s %.2f\n", emp.id, emp.name, emp.salary);
+        } else {
+            found = 1;
+        }
+    }
+
+    fclose(fp);
+    fclose(temp);
+
+    remove("employee.txt");
+    rename("temp.txt", "employee.txt");
+
+    if (found)
+        printf("Employee deleted successfully.\n");
+    else
+        printf("Employee with ID %d not found.\n", id);
+}
+
+int main() {
+    int choice;
+
+    do {
+        printf("\n--- Employee Management System ---\n");
+        printf("1. Add Employee\n");
+        printf("2. Display All Employees\n");
+        printf("3. Search Employee\n");
+        printf("4. Delete Employee\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: addEmployee(); break;
+            case 2: displayEmployees(); break;
+            case 3: searchEmployee(); break;
+            case 4: deleteEmployee(); break;
+            case 5: printf("Exiting program...\n"); break;
+            default: printf("Invalid choice! Try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
