@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Account {
+    int accNo;
+    char name[50];
+    float balance;
+};
+
+void createAccount() {
+    FILE *fp = fopen("bank.txt", "a");
+    struct Account a;
+
+    printf("Enter Account Number: ");
+    scanf("%d", &a.accNo);
+    printf("Enter Name: ");
+    scanf("%s", a.name);
+    printf("Enter Initial Balance: ");
+    scanf("%f", &a.balance);
+
+    fprintf(fp, "%d %s %.2f\n", a.accNo, a.name, a.balance);
+    fclose(fp);
+
+    printf("Account created successfully!\n");
+}
+
+void displayAccounts() {
+    FILE *fp = fopen("bank.txt", "r");
+    struct Account a;
+
+    printf("\n--- All Accounts ---\n");
+    while (fscanf(fp, "%d %s %f", &a.accNo, a.name, &a.balance) != EOF) {
+        printf("AccNo: %d | Name: %s | Balance: %.2f\n", a.accNo, a.name, a.balance);
+    }
+    fclose(fp);
+}
+
+void depositMoney() {
+    FILE *fp = fopen("bank.txt", "r");
+    FILE *temp = fopen("temp.txt", "w");
+    struct Account a;
+    int acc, found = 0;
+    float amt;
+
+    printf("Enter Account Number: ");
+    scanf("%d", &acc);
+    printf("Enter Deposit Amount: ");
+    scanf("%f", &amt);
+
+    while (fscanf(fp, "%d %s %f", &a.accNo, a.name, &a.balance) != EOF) {
+        if (a.accNo == acc) {
+            a.balance += amt;
+            found = 1;
+        }
+        fprintf(temp, "%d %s %.2f\n", a.accNo, a.name, a.balance);
+    }
+
+    fclose(fp);
+    fclose(temp);
+    remove("bank.txt");
+    rename("temp.txt", "bank.txt");
+
+    if (found) printf("Deposit successful!\n");
+    else printf("Account not found!\n");
+}
+
+void withdrawMoney() {
+    FILE *fp = fopen("bank.txt", "r");
+    FILE *temp = fopen("temp.txt", "w");
+    struct Account a;
+    int acc, found = 0;
+    float amt;
+
+    printf("Enter Account Number: ");
+    scanf("%d", &acc);
+    printf("Enter Withdraw Amount: ");
+    scanf("%f", &amt);
+
+    while (fscanf(fp, "%d %s %f", &a.accNo, a.name, &a.balance) != EOF) {
+        if (a.accNo == acc) {
+            if (a.balance >= amt) {
+                a.balance -= amt;
+                printf("Withdrawal successful!\n");
+            } else {
+                printf("Insufficient balance!\n");
+            }
+            found = 1;
+        }
+        fprintf(temp, "%d %s %.2f\n", a.accNo, a.name, a.balance);
+    }
+
+    fclose(fp);
+    fclose(temp);
+    remove("bank.txt");
+    rename("temp.txt", "bank.txt");
+
+    if (!found) printf("Account not found!\n");
+}
+
+int main() {
+    int choice;
+
+    do {
+        printf("\n--- Bank Account Management ---\n");
+        printf("1. Create Account\n");
+        printf("2. Display Accounts\n");
+        printf("3. Deposit Money\n");
+        printf("4. Withdraw Money\n");
+        printf("5. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: createAccount(); break;
+            case 2: displayAccounts(); break;
+            case 3: depositMoney(); break;
+            case 4: withdrawMoney(); break;
+            case 5: printf("Exiting...\n"); break;
+            default: printf("Invalid choice!\n");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
