@@ -1,0 +1,36 @@
+#include <stdio.h>
+
+int main() {
+    FILE *fp;
+    int choice, roll;
+    char name[50];
+    float marks;
+
+    do {
+        printf("\n1. Add Student\n2. Display Students\n3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            fp = fopen("students.txt", "a");
+            printf("Enter Roll No: ");
+            scanf("%d", &roll);
+            printf("Enter Name: ");
+            scanf("%s", name);
+            printf("Enter Marks: ");
+            scanf("%f", &marks);
+            fprintf(fp, "%d %s %.2f\n", roll, name, marks);
+            fclose(fp);
+        }
+        else if (choice == 2) {
+            fp = fopen("students.txt", "r");
+            printf("\n--- Student Records ---\n");
+            while (fscanf(fp, "%d %s %f", &roll, name, &marks) != EOF) {
+                printf("Roll: %d | Name: %s | Marks: %.2f\n", roll, name, marks);
+            }
+            fclose(fp);
+        }
+    } while (choice != 3);
+
+    return 0;
+}
